@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: #1e3a8a; /* Deep Blue */
+  --color-accent: #f59e0b; /* Warm Gold */
+  --color-background: #f8fafc; /* Slate 50 */
+}
+
+body {
+  @apply font-sans bg-slate-50 text-slate-900;
+}
+
+/* Smooth transitions */
+.page-transition {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Custom styles for html5-qrcode library to match UI */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#qr-reader {
+  border: none !important;
+}
+
+#qr-reader__scan_region {
+  background: #f8fafc !important;
+}
+
+#qr-reader button {
+  @apply bg-blue-600 text-white font-bold px-4 py-2 rounded-xl border-none cursor-pointer hover:bg-blue-700 transition-all text-sm mt-4;
+}
+
+#qr-reader__dashboard_section_csr button {
+  @apply ml-2;
+}
+
+#qr-reader__header_message {
+  @apply text-slate-500 font-medium;
+}
+
+#qr-reader__camera_selection {
+  @apply bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900 mb-4;
+}

@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Worker": {
+      "title": "Worker",
+      "description": "A church worker who can clock in and out.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the worker" },
+        "email": { "type": "string", "description": "Email address for login linkage" },
+        "role": { "type": "string", "description": "Role in the church (e.g., Choir, Usher)" },
+        "qrCodeId": { "type": "string", "description": "Unique ID for QR code mapping" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "role", "qrCodeId"]
+    },
+    "AttendanceRecord": {
+      "title": "Attendance Record",
+      "description": "A single clock-in or clock-out event.",
+      "type": "object",
+      "properties": {
+        "workerId": { "type": "string", "description": "Reference to the worker" },
+        "workerName": { "type": "string", "description": "Cached name for easier viewing" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["clock-in", "clock-out"] }
+      },
+      "required": ["workerId", "workerName", "timestamp", "type"]
+    }
+  },
+  "firestore": {
+    "/workers/{workerId}": {
+      "schema": "Worker",
+      "description": "Collection of church workers."
+    },
+    "/attendance/{recordId}": {
+      "schema": "AttendanceRecord",
+      "description": "Chronological log of attendance events."
+    }
+  }
+}

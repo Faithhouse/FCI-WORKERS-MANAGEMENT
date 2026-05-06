@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'fcbhahbtwog@gmail.com' &&
+        request.auth.token.email_verified == true
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 1. Workers Collection
+    match /workers/{workerId} {
+      function isValidWorker(data) {
+        return data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+               data.email is string && data.email.size() >= 3 &&
+               data.role is string && data.role.size() >= 1 && data.role.size() <= 100 &&
+               data.qrCodeId is string && data.qrCodeId.size() >= 1 && data.qrCodeId.size() <= 128 &&
+               (data.createdAt == request.time || data.createdAt is timestamp);
+      }
+
+      allow read: if isSignedIn();
+      allow create: if isAdmin() && isValidWorker(incoming()) && isValidId(workerId);
+      allow update: if isAdmin() && isValidWorker(incoming()) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['name', 'email', 'role', 'qrCodeId']);
+      allow delete: if isAdmin();
+    }
+
+    // 2. Attendance Collection
+    match /attendance/{recordId} {
+      function isValidAttendance(data) {
+        return data.workerId is string && isValidId(data.workerId) &&
+               data.workerName is string && data.workerName.size() >= 1 &&
+               data.type in ['clock-in', 'clock-out'] &&
+               data.timestamp == request.time;
+      }
+
+      allow list: if isSignedIn() && (isAdmin() || resource.data.workerId == get(/databases/$(database)/documents/workers/$(request.auth.uid)).id || exists(/databases/$(database)/documents/workers/$(request.auth.uid))); 
+      // Simplified: if they are signed in they can read attendance, but let's be stricter
+      allow read: if isSignedIn() && (isAdmin() || resource.data.workerId != null);
+      allow create: if isSignedIn() && isValidAttendance(incoming()) && isValidId(recordId);
+      // No updates or deletes allowed for auditing integrity
+      allow update, delete: if false;
+    }
+  }
+}

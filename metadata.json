@@ -1,0 +1,6 @@
+{
+  "name": "Faithhouse Chapel Int'l",
+  "description": "A QR-based attendance system for Faithhouse church workers to clock in and out seamlessly.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["QR Scanning", "Attendance Tracking"]
+}
